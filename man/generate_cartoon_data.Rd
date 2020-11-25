@@ -4,13 +4,7 @@
 \alias{generate_cartoon_data}
 \title{Generate data for the retina cartoon}
 \usage{
-generate_cartoon_data(
-  gene,
-  dataset = "godzilla",
-  label = T,
-  color = "red",
-  data_list = data_list
-)
+generate_cartoon_data(gene, dataset = "godzilla", label = T, color = "red")
 }
 \arguments{
 \item{gene}{Character string of the gene name for expression visualization. If the requested
@@ -24,14 +18,6 @@ single-cell datasets published by 09/01/2020) is chosen by default. Names mirror
 Spectalce (https://oculargeneexpression.org/singlecell)}
 
 \item{label}{TRUE/FALSE - should the cartoon have text labels for each cell type? True by default.}
-
-\item{data_list}{the pre-generated list of cartoon outlines and expression matrices. This list
-is pre-generated in data-raw and no adjustment to the parameter should be required. This
-list has three elements (which are themselves lists): 1. a list of expression matrices. 2.
-a list containing cartoon outlines WITHOUT labels. 3. a list containing cartoon outlines WITH
-labels. The character name of the specified dataset is used to refer to the correct expression
-matrix. The user-specified label parameter (see below) specified if the cartoon should include
-labels or not.}
 }
 \description{
 \code{generate_cartoon_data} returns a list with two elements. The first element is a
@@ -42,7 +28,7 @@ to display a pretty cartoon plot
 \examples{
 \dontrun{
 generate_cartoon_data(gene = "RHO", dataset = "godzilla")
-generate_cartoon_data(gene = "RHO", dataset = "godzilla", label = T, color = "red", data_list = data_list)
+generate_cartoon_data(gene = "RHO", dataset = "godzilla", label = T, color = "red")
 }
 
 }
