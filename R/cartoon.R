@@ -32,9 +32,9 @@ generate_cartoon_data <- function(gene,
 
 
 ### 1. Filter the expression matrix for your gene and generate scale
+data_list <- RetinaCartoon::data_list
 
 if( ! gene %in% rownames(data_list[["expression_list"]][[dataset]])) stop('requested gene not in this dataset! if this gene is in the GRCh38 notation, try appending -GRCh38 to the end of the gene name')
-data_list <- RetinaCartoon::data_list
 # data_list the pre-generated list of cartoon outlines and expression matrices. This list
 # is pre-generated in data-raw and no adjustment to the parameter should be required. This
 # list has three elements (which are themselves lists): 1. a list of expression matrices. 2.
