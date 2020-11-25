@@ -1,0 +1,18 @@
+Package: RetinaCartoon
+Type: Package
+Title: Maps Single-Cell Expression Data to Cartoon Retina, RPE, and Choroid Drawings
+Version: 0.1.0
+Author: Drew Voigt 
+Maintainer: Drew Voigt <drewvoigt@gmail.com>
+Description: A package for mapping IVR scRNA-seq data to cartoon. This helps quickly visualize what cell type(s) express a gene of interest.
+License: MIT
+Encoding: UTF-8
+LazyData: true
+Imports: cowplot (>= 1.1.0),
+  ggplot2 (>= 3.3.2),
+  grImport (>= 0.9.3),
+	magrittr (>= 1.5),
+	tibble (>= 3.0.3),
+	tidyverse (>= 1.3.0),
+	RColorBrewer (>= 1.1.2)
+RoxygenNote: 7.1.1

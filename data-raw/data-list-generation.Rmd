@@ -1,0 +1,237 @@
+---
+title: "Data raw generation"
+author: "Drew Voigt"
+date: "11/25/2020"
+output: html_document
+---
+
+
+```{r}
+library(tidyverse)
+library(Seurat)
+```
+
+
+
+Compute Average Expression of Godzilla: combined RPE & choroid dataset
+```{r}
+load("/Users/apvoigt/Documents/IVR/single\ cell/Seurat_3_setup/scripts/GRCh38/retina_rpe_chor_merge/data/2020_05_29_classified_object.RData")
+
+### change celltypes to match picture
+celltype_final <- IVR_object.combined@meta.data %>%
+  as_tibble() %>%
+  mutate(celltype_new = 
+           ifelse(celltype == "capillary", "choriocapillaris",
+           ifelse(celltype == "SMC", "smc",
+           ifelse(celltype == "T-cells", "T-cell",
+           ifelse(celltype == "B-cells", "B-cell",
+           ifelse(celltype %in% c("cone-off-BC", "cone-on-BC", "rod-BC"), "bipolar",
+           ifelse(celltype == "RGC", "rgc",
+           ifelse(celltype == "HZ", "horizontal",
+           ifelse(celltype == "Schwann", "schwann-mye",
+           ifelse(celltype == "RPE", "rpe", as.character(celltype)
+                  )))))))))
+  ) %>%
+  mutate(celltype_final = 
+           ifelse(celltype_new == "smc" & tissue == "retina", "retina-pericyte",
+           ifelse(celltype_new == "pericyte", paste0(as.character(tissue), "-pericyte"),
+           ifelse(celltype_new %in% c("choriocapillaris", "artery", "vein") & tissue == "retina", "retina-endothelial",
+                  as.character(celltype_new)
+           )))
+         ) %>% 
+  mutate(celltype_final = tolower(celltype_final))
+  pull(celltype_final)
+
+IVR_object.combined@meta.data <- data.frame(IVR_object.combined@meta.data, celltype_final)
+Idents(IVR_object.combined) <- "celltype_final"
+
+avg_df <- AverageExpression(IVR_object.combined, assays = "RNA")$RNA
+data_list[["expression_list"]][["godzilla"]] <- avg_df
+
+object <- readPicture("images/xml_files/new_pics/retina_rpe_chor_cartoon_all_2020_godzilla.ps.xml")
+data_list[["object_labeled_list"]][["godzilla"]] <- object
+
+object <- readPicture("images/xml_files/new_pics/retina_rpe_chor_cartoon_all_2020_godzilla_unlabeled.ps.xml")
+data_list[["object_unlabeled_list"]][["godzilla"]] <- object
+```
+
+Compute average expression of retina_fov_vs_periph
+```{r}
+dataset <- "retina_fov_vs_periph"
+
+load("/Users/apvoigt/Documents/IVR/single\ cell/Seurat_3_setup/scripts/Shiny_Paper_v3/SCOTA_bullseye/data2/retina_fov_vs_periph/seurat_obj.RData")
+
+### change celltypes to match picture
+celltype_final <- seurat_obj@meta.data %>%
+  as_tibble() %>%
+  mutate(celltype_new = 
+           ifelse(celltype %in% c("Rods-1", "Rods-2"), "rod",
+           ifelse(celltype %in% c("Cones-Fov", "Cones-Periph"), "cone",
+           ifelse(celltype %in% c("Bipolar-1", "Bipolar-2"), "bipolar",
+           ifelse(celltype %in% c("Glial-P1", "Glial-P2", "Glial-F1", "Glial-F2", "Glial-P3"), "muller", 
+           ifelse(celltype == "Pericytes", "retina-pericyte",
+           ifelse(celltype == "Endothelial", "retina-endothelial",
+                  as.character(celltype)
+           ))))))
+         ) %>%
+  mutate(celltype_final = tolower(celltype_new)
+         ) %>% 
+  pull(celltype_final)
+
+seurat_obj@meta.data <- data.frame(seurat_obj@meta.data, celltype_final)
+Idents(seurat_obj) <- "celltype_final"
+
+avg_df <- AverageExpression(seurat_obj, assays = "RNA")$RNA
+data_list[["expression_list"]][[dataset]] <- avg_df
+
+object <- readPicture("images/xml_files/new_pics/retina_fov_vs_periph_labeled.ps.xml")
+data_list[["object_labeled_list"]][[dataset]] <- object
+
+object <- readPicture("images/xml_files/new_pics/retina_fov_vs_periph_unlabeled.ps.xml")
+data_list[["object_unlabeled_list"]][[dataset]] <- object
+
+```
+
+Compute average expression of retina_AIR_vs_control
+```{r}
+dataset <- "retina_AIR_vs_control"
+
+load("/Users/apvoigt/Documents/IVR/single\ cell/Seurat_3_setup/scripts/Shiny_Paper_v3/SCOTA_bullseye/data2/retina_AIR_vs_control/seurat_obj.RData")
+
+### change celltypes to match picture
+celltype_final <- seurat_obj@meta.data %>%
+  as_tibble() %>%
+  mutate(celltype_new = 
+           ifelse(celltype == "endothelial", "retina-endothelial",
+           ifelse(celltype == "pericytes", "retina-pericyte",
+           ifelse(celltype == "astrocytes", "astrocyte",
+                  as.character(celltype)
+           )))
+         ) %>%
+  mutate(celltype_final = tolower(celltype_new)
+         ) %>% 
+  pull(celltype_final)
+
+seurat_obj@meta.data <- data.frame(seurat_obj@meta.data, celltype_final)
+Idents(seurat_obj) <- "celltype_final"
+
+avg_df <- AverageExpression(seurat_obj, assays = "RNA")$RNA
+data_list[["expression_list"]][[dataset]] <- avg_df
+
+object <- readPicture("images/xml_files/new_pics/retina_AIR_vs_control_labeled.ps.xml")
+data_list[["object_labeled_list"]][[dataset]] <- object
+
+object <- readPicture("images/xml_files/new_pics/retina_AIR_vs_control_unlabeled.ps.xml")
+data_list[["object_unlabeled_list"]][[dataset]] <- object
+```
+
+Compute average expression of RPE_choroid_unselected
+```{r}
+dataset <- "RPE_choroid_unselected"
+
+load("/Users/apvoigt/Documents/IVR/single\ cell/Seurat_3_setup/scripts/Shiny_Paper_v3/SCOTA_bullseye/data2/RPE_choroid_unselected/seurat_obj.RData")
+
+### change celltypes to match picture
+celltype_final <- seurat_obj@meta.data %>%
+  as_tibble() %>%
+  mutate(celltype_new = 
+           ifelse(celltype == "Schwann-non", "schwann-nm",
+           ifelse(celltype == "Endothelial", "choroid-endothelial",
+           ifelse(celltype == "Pericyte", "rpechor-pericyte",
+           ifelse(celltype == "T/NK-cell", "T-cell",
+           ifelse(celltype == "mast-cells", "mast",
+                  as.character(celltype)
+           )))))
+         ) %>%
+  mutate(celltype_final = tolower(celltype_new)
+         ) %>% 
+  pull(celltype_final)
+
+seurat_obj@meta.data <- data.frame(seurat_obj@meta.data, celltype_final)
+Idents(seurat_obj) <- "celltype_final"
+
+avg_df <- AverageExpression(seurat_obj, assays = "RNA")$RNA
+data_list[["expression_list"]][[dataset]] <- avg_df
+
+object <- readPicture("images/xml_files/new_pics/RPE_choroid_unselected_labeled.ps.xml")
+data_list[["object_labeled_list"]][[dataset]] <- object
+
+object <- readPicture("images/xml_files/new_pics/RPE_choroid_unselected_unlabeled.ps.xml")
+data_list[["object_unlabeled_list"]][[dataset]] <- object
+```
+
+Compute average expression of RPE_choroid_CD31_selected
+```{r}
+dataset <- "RPE_choroid_CD31_selected"
+
+load("/Users/apvoigt/Documents/IVR/single\ cell/Seurat_3_setup/scripts/Shiny_Paper_v3/SCOTA_bullseye/data2/RPE_choroid_CD31_selected/seurat_obj.RData")
+
+### change celltypes to match picture
+celltype_final <- seurat_obj@meta.data %>%
+  as_tibble() %>%
+  mutate(celltype_new = 
+           ifelse(celltype %in% c("wbc-1", "wbc-2"), "T-cell",
+           ifelse(celltype %in% c("macrophage-1", "macrophage-2", "macrophage-3"), "macrophage", 
+           ifelse(celltype %in% c("vein-2", "vein-1"), "vein", 
+           ifelse(celltype == "pericyte", "rpechor-pericyte",
+           ifelse(celltype == "schwann", "schwann-mye",
+           ifelse(celltype == "fibroblasts", "fibroblast",
+           ifelse(celltype == "rpe-melanocyte-rod", "melanocyte",
+                  as.character(celltype)
+           )))))))
+         ) %>%
+  mutate(celltype_final = tolower(celltype_new)
+         ) %>% 
+  pull(celltype_final)
+
+seurat_obj@meta.data <- data.frame(seurat_obj@meta.data, celltype_final)
+Idents(seurat_obj) <- "celltype_final"
+
+avg_df <- AverageExpression(seurat_obj, assays = "RNA")$RNA
+data_list[["expression_list"]][[dataset]] <- avg_df
+
+object <- readPicture("images/xml_files/new_pics/RPE_choroid_CD31_selected_labeled.ps.xml")
+data_list[["object_labeled_list"]][[dataset]] <- object
+
+object <- readPicture("images/xml_files/new_pics/RPE_choroid_CD31_selected_unlabeled.ps.xml")
+data_list[["object_unlabeled_list"]][[dataset]] <- object
+```
+
+Compute average expression of CD31_choroid_infant_adult
+```{r}
+dataset <- "CD31_choroid_infant_adult"
+
+load("/Users/apvoigt/Documents/IVR/single\ cell/Seurat_3_setup/scripts/Shiny_Paper_v3/SCOTA_bullseye/data2/CD31_choroid_infant_adult/seurat_obj.RData")
+
+### change celltypes to match picture
+celltype_final <- seurat_obj@meta.data %>%
+  as_tibble() %>%
+  mutate(celltype_new = 
+           ifelse(celltype == "pericytes", "rpechor-pericyte",
+           ifelse(celltype == "schwann", "schwann-mye",
+           ifelse(celltype == "melanocytes", "melanocyte",
+                  as.character(celltype)
+           )))
+         ) %>%
+  mutate(celltype_final = tolower(celltype_new)
+         ) %>% 
+  pull(celltype_final)
+
+seurat_obj@meta.data <- data.frame(seurat_obj@meta.data, celltype_final)
+Idents(seurat_obj) <- "celltype_final"
+
+avg_df <- AverageExpression(seurat_obj, assays = "RNA")$RNA
+data_list[["expression_list"]][[dataset]] <- avg_df
+
+object <- readPicture("images/xml_files/new_pics/CD31_choroid_infant_adult_labeled.ps.xml")
+data_list[["object_labeled_list"]][[dataset]] <- object
+
+object <- readPicture("images/xml_files/new_pics/CD31_choroid_infant_adult_unlabeled.ps.xml")
+data_list[["object_unlabeled_list"]][[dataset]] <- object
+```
+
+
+save your data_list
+```{r}
+save(data_list, file = "data/cartoon_data_list.RData")
+```
