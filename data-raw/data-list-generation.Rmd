@@ -13,7 +13,7 @@ library(Seurat)
 
 
 
-Compute Average Expression of Godzilla: combined RPE & choroid dataset
+Compute Average Expression of all_retina_rpe_chor: combined RPE & choroid dataset
 ```{r}
 load("/Users/apvoigt/Documents/IVR/single\ cell/Seurat_3_setup/scripts/GRCh38/retina_rpe_chor_merge/data/2020_05_29_classified_object.RData")
 
@@ -46,13 +46,13 @@ IVR_object.combined@meta.data <- data.frame(IVR_object.combined@meta.data, cellt
 Idents(IVR_object.combined) <- "celltype_final"
 
 avg_df <- AverageExpression(IVR_object.combined, assays = "RNA")$RNA
-data_list[["expression_list"]][["godzilla"]] <- avg_df
+data_list[["expression_list"]][["all_retina_rpe_chor"]] <- avg_df
 
-object <- readPicture("images/xml_files/new_pics/retina_rpe_chor_cartoon_all_2020_godzilla.ps.xml")
-data_list[["object_labeled_list"]][["godzilla"]] <- object
+object <- readPicture("images/xml_files/new_pics/retina_rpe_chor_cartoon_all_2020_all_retina_rpe_chor.ps.xml")
+data_list[["object_labeled_list"]][["all_retina_rpe_chor"]] <- object
 
-object <- readPicture("images/xml_files/new_pics/retina_rpe_chor_cartoon_all_2020_godzilla_unlabeled.ps.xml")
-data_list[["object_unlabeled_list"]][["godzilla"]] <- object
+object <- readPicture("images/xml_files/new_pics/retina_rpe_chor_cartoon_all_2020_all_retina_rpe_chor_unlabeled.ps.xml")
+data_list[["object_unlabeled_list"]][["all_retina_rpe_chor"]] <- object
 ```
 
 Compute average expression of retina_fov_vs_periph
