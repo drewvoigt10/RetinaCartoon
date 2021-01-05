@@ -54,8 +54,8 @@ expression_df <- data_list[["expression_list"]][[dataset]] %>%
 colnames(expression_df)[2] <- "expression"
 
 max_expression <- max(expression_df[,2])
-max_expression <- max(max_expression, 1)
-#max_expression <- max_expression + 1
+#max_expression <- max(max_expression, 1)
+max_expression <- max_expression + 1
 
 colfunc <- colorRampPalette(c("grey", color))
 my_colors <- colfunc(101)
