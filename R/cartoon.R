@@ -13,7 +13,7 @@
 #' "retina_AIR_vs_control", "RPE_choroid_unselected", "RPE_choroid_CD31_selected", and
 #' "CD31_choroid_infant_adult". all_retina_rpe_chor (a merged object of all retina+rpe+choroid
 #' single-cell datasets published by 09/01/2020) is chosen by default. Names mirror datasets hosted on
-#' Spectalce (https://oculargeneexpression.org/singlecell)
+#' Spectacle (https://oculargeneexpression.org/singlecell)
 #'
 #' @param label TRUE/FALSE - should the cartoon have text labels for each cell type? True by default.
 #'

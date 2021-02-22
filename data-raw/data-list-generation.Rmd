@@ -3,15 +3,16 @@ title: "Data raw generation"
 author: "Drew Voigt"
 date: "11/25/2020"
 output: html_document
+editor_options: 
+  chunk_output_type: console
 ---
 
 
 ```{r}
 library(tidyverse)
 library(Seurat)
+library(grImport)
 ```
-
-
 
 Compute Average Expression of all_retina_rpe_chor: combined RPE & choroid dataset
 ```{r}
@@ -230,6 +231,38 @@ object <- readPicture("images/xml_files/new_pics/CD31_choroid_infant_adult_unlab
 data_list[["object_unlabeled_list"]][[dataset]] <- object
 ```
 
+Compute average expression of retina_fovea_perifovea
+```{r}
+dataset <- "retina_fovea_perifovea"
+
+load("/Users/apvoigt/Documents/IVR/single\ cell/Seurat_3_setup/scripts/Shiny_Paper_v3/SCOTA_bullseye_FAST/data2/retina_fovea_perifovea/seurat_obj.RData")
+
+### change celltypes to match picture
+celltype_final <- seurat_obj@meta.data %>%
+  as_tibble() %>%
+  mutate(celltype_new = 
+           ifelse(celltype == "pericyte", "retina-pericyte",
+           ifelse(celltype == "endothelial", "retina-endothelial",
+           ifelse(celltype %in% c("cone-off-BC", "cone-off-BC-BC3A", "cone-on-BC", "rod-BC"), "bipolar",
+                  as.character(celltype)
+           )))
+         ) %>%
+  mutate(celltype_final = tolower(celltype_new)
+         ) %>% 
+  pull(celltype_final)
+
+seurat_obj@meta.data <- data.frame(seurat_obj@meta.data, celltype_final)
+Idents(seurat_obj) <- "celltype_final"
+
+avg_df <- AverageExpression(seurat_obj, assays = "RNA")$RNA
+data_list[["expression_list"]][[dataset]] <- avg_df
+
+object <- readPicture("images/xml_files/new_pics/retina_fovea_perifovea_labeled.ps.xml")
+data_list[["object_labeled_list"]][[dataset]] <- object
+
+object <- readPicture("images/xml_files/new_pics/retina_fovea_perifovea_unlabeled.ps.xml")
+data_list[["object_unlabeled_list"]][[dataset]] <- object
+```
 
 save your data_list
 ```{r}
