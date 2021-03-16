@@ -9,9 +9,9 @@ editor_options:
 
 
 ```{r}
-library(tidyverse)
-library(Seurat)
-library(grImport)
+#library(tidyverse)
+#library(Seurat)
+#library(grImport)
 ```
 
 Compute Average Expression of all_retina_rpe_chor: combined RPE & choroid dataset
