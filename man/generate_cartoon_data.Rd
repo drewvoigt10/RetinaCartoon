@@ -4,18 +4,23 @@
 \alias{generate_cartoon_data}
 \title{Generate data for the retina cartoon}
 \usage{
-generate_cartoon_data(gene, dataset = "godzilla", label = T, color = "red")
+generate_cartoon_data(
+  gene,
+  dataset = "all_retina_rpe_chor",
+  label = T,
+  color = "red"
+)
 }
 \arguments{
 \item{gene}{Character string of the gene name for expression visualization. If the requested
 gene is not found, it was most likely not annotated in the given dataset. Try adding the suffix
 '-GRCh38' if you believe the gene may have been annotated in the more recent genome build.}
 
-\item{dataset}{Character string of the dataset name. Options are: "godzilla", "retina_fov_vs_periph",
-"retina_AIR_vs_control", "RPE_choroid_unselected", "RPE_choroid_CD31_selected", and
-"CD31_choroid_infant_adult". Godzilla (a merged object of all retina+rpe+choroid
+\item{dataset}{Character string of the dataset name. Options are: "all_retina_rpe_chor", "retina_fov_vs_periph",
+"retina_AIR_vs_control", "RPE_choroid_unselected", "RPE_choroid_CD31_selected", "retina_fovea_perifovea", and
+"CD31_choroid_infant_adult". "all_retina_rpe_chor" (a merged object of all retina+rpe+choroid
 single-cell datasets published by 09/01/2020) is chosen by default. Names mirror datasets hosted on
-Spectalce (https://oculargeneexpression.org/singlecell)}
+Spectacle (singlecell-eye.org)}
 
 \item{label}{TRUE/FALSE - should the cartoon have text labels for each cell type? True by default.}
 }
@@ -27,8 +32,8 @@ to display a pretty cartoon plot
 }
 \examples{
 \dontrun{
-generate_cartoon_data(gene = "RHO", dataset = "godzilla")
-generate_cartoon_data(gene = "RHO", dataset = "godzilla", label = T, color = "red")
+generate_cartoon_data(gene = "RHO", dataset = "all_retina_rpe_chor")
+generate_cartoon_data(gene = "RHO", dataset = "all_retina_rpe_chor", label = T, color = "red")
 }
 
 }

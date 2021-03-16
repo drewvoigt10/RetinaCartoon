@@ -4,13 +4,15 @@ Title: Maps Single-Cell Expression Data to Cartoon Retina, RPE, and Choroid Draw
 Version: 0.1.0
 Author: Drew Voigt 
 Maintainer: Drew Voigt <drewvoigt@gmail.com>
-Description: A package for mapping IVR scRNA-seq data to cartoon. This helps quickly visualize what cell type(s) express a gene of interest.
+Description: A package for mapping scRNA-seq data to cartoon. This helps quickly visualize what cell type(s) express a gene of interest.
 License: MIT
 Encoding: UTF-8
 LazyData: true
 Imports: cowplot (>= 1.1.0),
+  dplyr (>= 1.0.2),
   ggplot2 (>= 3.3.2),
   ggpubr (>= 0.4.0),
+  grDevices (>= 3.6.0),
   grImport (>= 0.9.3),
 	magrittr (>= 1.5),
 	tibble (>= 3.0.3),

@@ -10,10 +10,10 @@
 #' '-GRCh38' if you believe the gene may have been annotated in the more recent genome build.
 #'
 #' @param dataset Character string of the dataset name. Options are: "all_retina_rpe_chor", "retina_fov_vs_periph",
-#' "retina_AIR_vs_control", "RPE_choroid_unselected", "RPE_choroid_CD31_selected", and
-#' "CD31_choroid_infant_adult". all_retina_rpe_chor (a merged object of all retina+rpe+choroid
+#' "retina_AIR_vs_control", "RPE_choroid_unselected", "RPE_choroid_CD31_selected", "retina_fovea_perifovea", and
+#' "CD31_choroid_infant_adult". "all_retina_rpe_chor" (a merged object of all retina+rpe+choroid
 #' single-cell datasets published by 09/01/2020) is chosen by default. Names mirror datasets hosted on
-#' Spectacle (https://oculargeneexpression.org/singlecell)
+#' Spectacle (singlecell-eye.org)
 #'
 #' @param label TRUE/FALSE - should the cartoon have text labels for each cell type? True by default.
 #'
@@ -44,25 +44,25 @@ if( ! gene %in% rownames(data_list[["expression_list"]][[dataset]])) stop('reque
 # labels or not.
 
 expression_df <- data_list[["expression_list"]][[dataset]] %>%
-  rownames_to_column("gene_name") %>%
-  filter(gene_name == gene) %>%
-  column_to_rownames("gene_name") %>%
+  tibble::rownames_to_column("gene_name") %>%
+  dplyr::filter(gene_name == gene) %>%
+  tibble::column_to_rownames("gene_name") %>%
   t() %>%
   as.data.frame() %>%
-  rownames_to_column("celltype")
+  tibble::rownames_to_column("celltype")
 
 colnames(expression_df)[2] <- "expression"
 
 max_expression <- max(expression_df[,2])
-#max_expression <- max(max_expression, 1)
-max_expression <- max_expression + 1
+max_expression <- max_expression + 1  # adding 1 to the max expression makes visualizations for
+                                      # lowly expressed genes more accurate
 
-colfunc <- colorRampPalette(c("grey", color))
+colfunc <- grDevices::colorRampPalette(c("grey", color))
 my_colors <- colfunc(101)
 
 expression_df <- expression_df %>%
-  mutate(percent = round(expression * 100 / max_expression)) %>%
-  mutate(color = my_colors[as.integer(percent + 1)])
+  dplyr::mutate(percent = round(expression * 100 / max_expression)) %>%
+  dplyr::mutate(color = my_colors[as.integer(percent + 1)])
 
 ### 2. Chose the correct xml_object
 if(label == TRUE) {
@@ -74,7 +74,7 @@ if(label == TRUE) {
 
 ### 3. Generate the indices of each celltype in the current object according to
 ###    the color scheme below
-color_celltype_tibble <- tribble(~hex_color, ~celltype,
+color_celltype_tibble <- tibble::tribble(~hex_color, ~celltype,
                                  "#FFF200", "astrocyte",
                                  "#ED1C24", "muller",
                                  "#00ADEF", "microglia",
@@ -103,37 +103,50 @@ color_celltype_tibble <- tribble(~hex_color, ~celltype,
                                  "#FCD9E1", "choroid-endothelial"
 )
 
-celltype_indexes <- vector(mode = "list", length = nrow(color_celltype_tibble))
-names(celltype_indexes) <- color_celltype_tibble[["celltype"]]
+# there are many paths corresponding to different shapes in the xml drawing
+# the following for loop searches through all of these paths and extracts the
+# hex code color filled in by the path. These colors, in combination with the
+# above color_cell type_tibble, will provide us with a way to match each path
+# to a cell type
 
-all_colors <- c() # grab the color of each path in the object
+all_path_colors <- rep("", length(xml_object@paths)) # stores the color of each path in the object
 for(i in 1:length(xml_object@paths)){
-  #xml_object@paths[369]$text
+
   if(! is.null(xml_object@paths[i]$path)){
-    color <- xml_object@paths[i]$path@rgb
+    color <- xml_object@paths[i]$path@rgb # extracts the rgb color of the path
   } else {
-    color <- "BLANK"
+    color <- "BLANK" # if the path doesnt have a color, we don't care about it!
   }
-  all_colors <- c(all_colors, color)
-
+  all_path_colors[i] <- color
 }
 
 
-## This for loop returns a list
-## Each element in the list corresponds to a different celltype
-## Each element in the list is a VECTOR, which corresponds to the path index(es) corresponding to each celltype
 
-for(i in 1:length(celltype_indexes)){
-  celltype_index <- which(color_celltype_tibble[["celltype"]] == names(celltype_indexes)[i])
-  my_vector <- which(all_colors == color_celltype_tibble[["hex_color"]][celltype_index])
-  celltype_indexes[[i]] <- my_vector
+# We need to find which paths in our XML object correspond to which shapes.
+# First, we create a list that will store the path indexes of each cell type
+celltype_path_indexes <- vector(mode = "list", length = nrow(color_celltype_tibble))
+names(celltype_path_indexes) <- color_celltype_tibble[["celltype"]]
+
+# Next, we use a for-loop to:
+# (1) pull the hexcode color of each cell type of interest
+# (2) find which paths in our XML object have this hexcode color
+
+for(i in 1:length(celltype_path_indexes)){
+
+  celltype_color <- color_celltype_tibble %>%
+    dplyr::filter(celltype == names(celltype_path_indexes)[i]) %>%
+    dplyr::pull(hex_color)
+
+  path_index <- which(all_path_colors == celltype_color)
+  celltype_path_indexes[[i]] <- path_index
 }
 
 
-### 4. Re-color the object based on the color scale from 1 and the indices from 3
+### 4. Re-color the object based on the EXPRESSION color scale
+# (re-coloring modifies the original XML object)
 for(i in 1:nrow(expression_df)){
   celltype <- expression_df[["celltype"]][i]
-  indexes <- unlist(celltype_indexes[[celltype]])
+  indexes <- unlist(celltype_path_indexes[[celltype]])
   color <- expression_df[["color"]][i]
   if(length(indexes) > 0){
     for(p in 1:length(indexes)){
@@ -143,17 +156,18 @@ for(i in 1:nrow(expression_df)){
 
 }
 
+### 5. Creating a legend of expression
 expression_sequenced <- data.frame(
   expression = seq(from = 0,
                    to = max_expression,
                    by = max_expression/100),
   my_colors)
 
-heatmap_legend <- ggplot(expression_sequenced) +
-  geom_tile(aes(x = 1, y = expression, fill = expression)) +
-  scale_fill_gradient(low = my_colors[1],
+heatmap_legend <- ggplot2::ggplot(expression_sequenced) +
+  ggplot2::geom_tile(aes(x = 1, y = expression, fill = expression)) +
+  ggplot2::scale_fill_gradient(low = my_colors[1],
                       high = my_colors[101]) +
-  scale_x_continuous(limits=c(0,2),breaks=1, labels = "expression")
+  ggplot2::scale_x_continuous(limits=c(0,2),breaks=1, labels = "expression")
 
 leg <- ggpubr::get_legend(heatmap_legend)
 
@@ -170,7 +184,8 @@ return(list(xml_object, leg))
 #' expression to color. These elements can then be combined by the plot_cartoon function
 #' to display a pretty cartoon plot
 #'
-#' @param cartoon_data Cartoon data generated from the generate_cartoon_data
+#' @param cartoon_data Cartoon data generated from the generate_cartoon_data. Cartoon data is
+#' a list containing an XML object and an expression legend.
 #'
 #' @examples
 #' \dontrun{

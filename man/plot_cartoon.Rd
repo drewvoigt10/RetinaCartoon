@@ -7,7 +7,8 @@
 plot_cartoon(cartoon_data)
 }
 \arguments{
-\item{cartoon_data}{Cartoon data generated from the generate_cartoon_data}
+\item{cartoon_data}{Cartoon data generated from the generate_cartoon_data. Cartoon data is
+a list containing an XML object and an expression legend.}
 }
 \description{
 \code{plot_cartoon} returns a list with two elements. The first element is a
@@ -17,7 +18,7 @@ to display a pretty cartoon plot
 }
 \examples{
 \dontrun{
-generate_cartoon_data(gene = "RHO", dataset = "godzilla") \%>\% plot_cartoon()
+generate_cartoon_data(gene = "RHO", dataset = "all_retina_rpe_chor") \%>\% plot_cartoon()
 }
 
 }
