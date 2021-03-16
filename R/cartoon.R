@@ -17,6 +17,8 @@
 #'
 #' @param label TRUE/FALSE - should the cartoon have text labels for each cell type? True by default.
 #'
+#' @param color character string of the color vector for the expression scale. Defaults to red.
+#'
 #' @examples
 #' \dontrun{
 #' generate_cartoon_data(gene = "RHO", dataset = "all_retina_rpe_chor")
